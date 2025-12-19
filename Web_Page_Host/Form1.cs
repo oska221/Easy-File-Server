@@ -188,7 +188,7 @@ namespace MiniHttpServer
                         int addedCount = 0;
                         foreach (string fileName in ofd.FileNames)
                         {
-                            // Sprawdź rozmiar pliku
+                            
                             FileInfo fileInfo = new FileInfo(fileName);
                             if (fileInfo.Length > 200L * 1024 * 1024 * 1024) // 200GB
                             {
@@ -245,7 +245,7 @@ namespace MiniHttpServer
                         f.Hits,
                         serverRunning ? f.Url : "Not running",
                         fileSize,
-                        f.Path // Hidden column for full path
+                        f.Path 
                     );
                 }
                 UpdateButtons();
@@ -323,7 +323,7 @@ namespace MiniHttpServer
                     return;
                 }
 
-                // Sprawdź czy port jest wolny
+               
                 if (IsPortInUse((int)numPort.Value))
                 {
                     LogMessage($"Port {numPort.Value} is already in use!", LogType.Error);
@@ -335,27 +335,27 @@ namespace MiniHttpServer
                 currentHost = selectedHost.Contains("(") ?
                     selectedHost.Split('(')[0].Trim() : selectedHost;
 
-                // Zaktualizuj wszystkie pliki na ten sam port i host
+               
                 foreach (var file in files)
                 {
                     file.Port = currentPort;
                     file.Host = currentHost;
                 }
 
-                // Uruchom jeden serwer
+                
                 if (StartServer())
                 {
                     RefreshGrid();
                     LogMessage($"Server started on port {currentPort}", LogType.Success);
                     LogMessage($"Access URLs:", LogType.Info);
 
-                    // Pokaż wszystkie dostępne URL
+                   
                     foreach (var file in files)
                     {
                         LogMessage($"  - {file.Url}", LogType.Info);
                     }
 
-                    // Pokaż IP dla połączenia z telefonu
+                    
                     if (currentHost == "+" || currentHost == "*")
                     {
                         string localIP = GetLocalIP();
@@ -393,7 +393,7 @@ namespace MiniHttpServer
                 server = new HttpListener();
                 string host = currentHost == "+" ? "*" : currentHost;
 
-                // Dla połączenia z telefonu musimy nasłuchiwać na wszystkich interfejsach
+                
                 if (host == "*")
                 {
                     server.Prefixes.Add($"http://*:{currentPort}/");
@@ -405,14 +405,14 @@ namespace MiniHttpServer
                     LogMessage($"Listening on {host}:{currentPort}", LogType.Info);
                 }
 
-                // Optymalizacja dla szybkiego transferu
+                
                 server.TimeoutManager.EntityBody = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.DrainEntityBody = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.RequestQueue = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.IdleConnection = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.HeaderWait = TimeSpan.FromMinutes(60);
 
-                // Wymagane uprawnienia administratora dla hosta "*" w Windows
+                
                 if (host == "*" && Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
                     LogMessage("NOTE: On Windows, hosting on '*' may require administrator rights", LogType.Warning);
@@ -430,7 +430,7 @@ namespace MiniHttpServer
             }
             catch (HttpListenerException ex)
             {
-                if (ex.ErrorCode == 5) // Access denied
+                if (ex.ErrorCode == 5) 
                 {
                     LogMessage($"ACCESS DENIED: Need administrator rights to host on port {currentPort}", LogType.Error);
                     LogMessage("Please run this application as Administrator", LogType.Error);
@@ -623,14 +623,14 @@ namespace MiniHttpServer
                                 HttpListenerContext httpContext = (HttpListenerContext)ctx;
                                 string requestedFile = httpContext.Request.Url.Segments[httpContext.Request.Url.Segments.Length - 1];
 
-                                // Loguj połączenie
+                                
                                 string clientIP = httpContext.Request.RemoteEndPoint?.Address?.ToString() ?? "unknown";
                                 this.Invoke(new Action(() =>
                                 {
                                     LogMessage($"Connection from: {clientIP} requesting: {requestedFile}", LogType.Info);
                                 }));
 
-                                // Znajdź plik po nazwie
+                                
                                 var file = files.Find(f =>
                                     Path.GetFileName(f.Path).Equals(requestedFile, StringComparison.OrdinalIgnoreCase));
 
@@ -644,17 +644,17 @@ namespace MiniHttpServer
                                         RefreshGrid();
                                     }));
 
-                                    // OPTYMALIZACJA DLA SZYBKIEGO TRANSFERU
+                                    
                                     using (FileStream fileStream = File.OpenRead(file.Path))
                                     {
                                         httpContext.Response.ContentType = GetContentType(file.Path);
                                         httpContext.Response.ContentLength64 = fileStream.Length;
 
-                                        // Duży bufor 1MB dla maksymalnej przepustowości
+                                        
                                         byte[] buffer = new byte[1024 * 1024]; // 1MB buffer
                                         int bytesRead;
 
-                                        // Ustaw wysoki priorytet I/O
+                                        
                                         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                                         {
                                             Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
@@ -668,18 +668,18 @@ namespace MiniHttpServer
                                             httpContext.Response.OutputStream.Write(buffer, 0, bytesRead);
                                             totalBytes += bytesRead;
 
-                                            // Flush co 10MB dla utrzymania przepływu
+                                           
                                             if (totalBytes % (10 * 1024 * 1024) == 0)
                                             {
                                                 httpContext.Response.OutputStream.Flush();
                                             }
 
-                                            // Przerwij jeśli serwer został zatrzymany
+                                            
                                             if (!serverRunning) break;
                                         }
                                         sw.Stop();
 
-                                        // Loguj prędkość transferu
+                                       
                                         double speedMBps = (totalBytes / (1024.0 * 1024.0)) / (sw.ElapsedMilliseconds / 1000.0);
                                         this.Invoke(new Action(() =>
                                         {
@@ -689,7 +689,7 @@ namespace MiniHttpServer
                                 }
                                 else
                                 {
-                                    // Plik nie znaleziony
+                                    
                                     httpContext.Response.StatusCode = 404;
                                     string notFound = $"File '{requestedFile}' not found. Available files: ";
                                     foreach (var f in files)
@@ -856,7 +856,7 @@ namespace MiniHttpServer
 
                 txtLog.Select(start, end - start);
                 txtLog.SelectionColor = color;
-                txtLog.SelectionLength = 0; // TU BYŁA LITERÓWKA: txtTrLog → txtLog
+                txtLog.SelectionLength = 0;
                 txtLog.ScrollToCaret();
             }
             catch (Exception ex)
@@ -969,7 +969,7 @@ namespace MiniHttpServer
             {
                 if (!serverRunning)
                 {
-                    // Zaktualizuj port dla wszystkich plików
+                   
                     foreach (var file in files)
                     {
                         file.Port = (int)numPort.Value;
@@ -995,7 +995,7 @@ namespace MiniHttpServer
                     string hostValue = selected.Contains("(") ?
                         selected.Split('(')[0].Trim() : selected;
 
-                    // Zaktualizuj host dla wszystkich plików
+                    
                     foreach (var file in files)
                     {
                         file.Host = hostValue;
@@ -1030,10 +1030,10 @@ namespace MiniHttpServer
 
         private void lblStatus_Click(object sender, EventArgs e)
         {
-            // Pusta metoda - tylko do obsługi eventu z designera
+            
         }
 
-        // Puste metody dla designera
+        
         private void lblHostIP_Click(object sender, EventArgs e) { }
         private void toolStripStatusLabel_Click(object sender, EventArgs e) { }
         private void groupLog_Enter(object sender, EventArgs e) { }
