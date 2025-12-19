@@ -39,7 +39,7 @@ namespace MiniHttpServer
         private readonly Color successColor = Color.FromArgb(100, 255, 100);
         private readonly Color warningColor = Color.FromArgb(255, 200, 100);
 
-        // Jeden serwer dla wszystkich plików
+   
         private HttpListener server;
         private Thread serverThread;
         private bool serverRunning = false;
