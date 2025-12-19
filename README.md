@@ -79,4 +79,4 @@ That’s it. No magic rituals required.
 
 ## 📜 License
 
-Use it, modify it, break it, fix it.  
+MIT
