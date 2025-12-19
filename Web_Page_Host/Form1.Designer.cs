@@ -1,4 +1,4 @@
-﻿namespace MiniHttpServer
+namespace MiniHttpServer
 {
     partial class Form1
     {
@@ -39,6 +39,7 @@
             this.colHost = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colHits = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colUrl = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.groupLog = new System.Windows.Forms.GroupBox();
@@ -47,6 +48,7 @@
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblServerCount = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTotalHits = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblTotalSize = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFiles)).BeginInit();
@@ -57,7 +59,6 @@
             this.groupLog.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
-
             // 
             // panelTop
             // 
@@ -82,7 +83,7 @@
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
             this.panelTop.Padding = new System.Windows.Forms.Padding(15);
-            this.panelTop.Size = new System.Drawing.Size(1200, 126);
+            this.panelTop.Size = new System.Drawing.Size(1200, 146);
             this.panelTop.TabIndex = 0;
             // 
             // btnClearLog
@@ -92,9 +93,9 @@
             this.btnClearLog.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClearLog.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.btnClearLog.ForeColor = System.Drawing.Color.White;
-            this.btnClearLog.Location = new System.Drawing.Point(1066, 45);
+            this.btnClearLog.Location = new System.Drawing.Point(1066, 47);
             this.btnClearLog.Name = "btnClearLog";
-            this.btnClearLog.Size = new System.Drawing.Size(100, 30);
+            this.btnClearLog.Size = new System.Drawing.Size(100, 35);
             this.btnClearLog.TabIndex = 16;
             this.btnClearLog.Text = "Clear Log";
             this.btnClearLog.UseVisualStyleBackColor = false;
@@ -105,11 +106,12 @@
             this.lblStatus.AutoSize = true;
             this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblStatus.ForeColor = System.Drawing.Color.White;
-            this.lblStatus.Location = new System.Drawing.Point(18, 83);
+            this.lblStatus.Location = new System.Drawing.Point(18, 100);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(99, 28);
             this.lblStatus.TabIndex = 0;
-            this.lblStatus.Text = "Status: ○";
+            this.lblStatus.Text = "Status: NONE";
+            this.lblStatus.Click += new System.EventHandler(this.lblStatus_Click);
             // 
             // btnOpenInBrowser
             // 
@@ -118,9 +120,9 @@
             this.btnOpenInBrowser.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOpenInBrowser.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.btnOpenInBrowser.ForeColor = System.Drawing.Color.White;
-            this.btnOpenInBrowser.Location = new System.Drawing.Point(370, 50);
+            this.btnOpenInBrowser.Location = new System.Drawing.Point(366, 53);
             this.btnOpenInBrowser.Name = "btnOpenInBrowser";
-            this.btnOpenInBrowser.Size = new System.Drawing.Size(140, 30);
+            this.btnOpenInBrowser.Size = new System.Drawing.Size(140, 35);
             this.btnOpenInBrowser.TabIndex = 14;
             this.btnOpenInBrowser.Text = "Open Browser";
             this.btnOpenInBrowser.UseVisualStyleBackColor = false;
@@ -131,7 +133,7 @@
             this.lblHostIP.AutoSize = true;
             this.lblHostIP.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.lblHostIP.ForeColor = System.Drawing.Color.White;
-            this.lblHostIP.Location = new System.Drawing.Point(680, 50);
+            this.lblHostIP.Location = new System.Drawing.Point(680, 63);
             this.lblHostIP.Name = "lblHostIP";
             this.lblHostIP.Size = new System.Drawing.Size(74, 25);
             this.lblHostIP.TabIndex = 12;
@@ -146,7 +148,7 @@
             this.comboHostIP.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.comboHostIP.ForeColor = System.Drawing.Color.White;
             this.comboHostIP.FormattingEnabled = true;
-            this.comboHostIP.Location = new System.Drawing.Point(760, 45);
+            this.comboHostIP.Location = new System.Drawing.Point(760, 55);
             this.comboHostIP.Name = "comboHostIP";
             this.comboHostIP.Size = new System.Drawing.Size(200, 33);
             this.comboHostIP.TabIndex = 11;
@@ -161,7 +163,7 @@
             this.btnRefreshIP.ForeColor = System.Drawing.Color.White;
             this.btnRefreshIP.Location = new System.Drawing.Point(970, 45);
             this.btnRefreshIP.Name = "btnRefreshIP";
-            this.btnRefreshIP.Size = new System.Drawing.Size(90, 30);
+            this.btnRefreshIP.Size = new System.Drawing.Size(90, 35);
             this.btnRefreshIP.TabIndex = 10;
             this.btnRefreshIP.Text = "Refresh";
             this.btnRefreshIP.UseVisualStyleBackColor = false;
@@ -172,7 +174,7 @@
             this.lblPort.AutoSize = true;
             this.lblPort.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.lblPort.ForeColor = System.Drawing.Color.White;
-            this.lblPort.Location = new System.Drawing.Point(680, 15);
+            this.lblPort.Location = new System.Drawing.Point(680, 18);
             this.lblPort.Name = "lblPort";
             this.lblPort.Size = new System.Drawing.Size(48, 25);
             this.lblPort.TabIndex = 7;
@@ -212,9 +214,9 @@
             this.btnCopy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCopy.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.btnCopy.ForeColor = System.Drawing.Color.White;
-            this.btnCopy.Location = new System.Drawing.Point(220, 50);
+            this.btnCopy.Location = new System.Drawing.Point(220, 53);
             this.btnCopy.Name = "btnCopy";
-            this.btnCopy.Size = new System.Drawing.Size(140, 30);
+            this.btnCopy.Size = new System.Drawing.Size(140, 35);
             this.btnCopy.TabIndex = 15;
             this.btnCopy.Text = "Copy";
             this.btnCopy.UseVisualStyleBackColor = false;
@@ -227,9 +229,9 @@
             this.btnStopAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStopAll.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.btnStopAll.ForeColor = System.Drawing.Color.White;
-            this.btnStopAll.Location = new System.Drawing.Point(520, 12);
+            this.btnStopAll.Location = new System.Drawing.Point(512, 12);
             this.btnStopAll.Name = "btnStopAll";
-            this.btnStopAll.Size = new System.Drawing.Size(140, 30);
+            this.btnStopAll.Size = new System.Drawing.Size(140, 35);
             this.btnStopAll.TabIndex = 5;
             this.btnStopAll.Text = "Stop All";
             this.btnStopAll.UseVisualStyleBackColor = false;
@@ -242,9 +244,9 @@
             this.btnStartAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStartAll.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.btnStartAll.ForeColor = System.Drawing.Color.White;
-            this.btnStartAll.Location = new System.Drawing.Point(370, 12);
+            this.btnStartAll.Location = new System.Drawing.Point(366, 12);
             this.btnStartAll.Name = "btnStartAll";
-            this.btnStartAll.Size = new System.Drawing.Size(140, 30);
+            this.btnStartAll.Size = new System.Drawing.Size(140, 35);
             this.btnStartAll.TabIndex = 4;
             this.btnStartAll.Text = "Start All";
             this.btnStartAll.UseVisualStyleBackColor = false;
@@ -259,7 +261,7 @@
             this.btnRemoveAll.ForeColor = System.Drawing.Color.White;
             this.btnRemoveAll.Location = new System.Drawing.Point(220, 12);
             this.btnRemoveAll.Name = "btnRemoveAll";
-            this.btnRemoveAll.Size = new System.Drawing.Size(140, 30);
+            this.btnRemoveAll.Size = new System.Drawing.Size(140, 35);
             this.btnRemoveAll.TabIndex = 3;
             this.btnRemoveAll.Text = "Remove All";
             this.btnRemoveAll.UseVisualStyleBackColor = false;
@@ -272,9 +274,9 @@
             this.btnRemoveFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRemoveFile.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.btnRemoveFile.ForeColor = System.Drawing.Color.White;
-            this.btnRemoveFile.Location = new System.Drawing.Point(18, 50);
+            this.btnRemoveFile.Location = new System.Drawing.Point(20, 53);
             this.btnRemoveFile.Name = "btnRemoveFile";
-            this.btnRemoveFile.Size = new System.Drawing.Size(190, 30);
+            this.btnRemoveFile.Size = new System.Drawing.Size(190, 35);
             this.btnRemoveFile.TabIndex = 3;
             this.btnRemoveFile.Text = "Remove Selected";
             this.btnRemoveFile.UseVisualStyleBackColor = false;
@@ -289,7 +291,7 @@
             this.btnAddFile.ForeColor = System.Drawing.Color.White;
             this.btnAddFile.Location = new System.Drawing.Point(20, 12);
             this.btnAddFile.Name = "btnAddFile";
-            this.btnAddFile.Size = new System.Drawing.Size(190, 30);
+            this.btnAddFile.Size = new System.Drawing.Size(190, 35);
             this.btnAddFile.TabIndex = 2;
             this.btnAddFile.Text = "Add Files";
             this.btnAddFile.UseVisualStyleBackColor = false;
@@ -323,6 +325,7 @@
             this.colHost,
             this.colHits,
             this.colUrl,
+            this.colSize,
             this.colPath});
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
@@ -344,14 +347,14 @@
             this.dgvFiles.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvFiles.RowTemplate.Height = 35;
             this.dgvFiles.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvFiles.Size = new System.Drawing.Size(1200, 344);
+            this.dgvFiles.Size = new System.Drawing.Size(1200, 334);
             this.dgvFiles.TabIndex = 1;
             this.dgvFiles.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvFiles_CellDoubleClick);
             this.dgvFiles.SelectionChanged += new System.EventHandler(this.dgvFiles_SelectionChanged);
             // 
             // colStatus
             // 
-            this.colStatus.FillWeight = 70F;
+            this.colStatus.FillWeight = 60F;
             this.colStatus.HeaderText = "Status";
             this.colStatus.MinimumWidth = 8;
             this.colStatus.Name = "colStatus";
@@ -359,7 +362,7 @@
             // 
             // colFileName
             // 
-            this.colFileName.FillWeight = 180F;
+            this.colFileName.FillWeight = 150F;
             this.colFileName.HeaderText = "File Name";
             this.colFileName.MinimumWidth = 8;
             this.colFileName.Name = "colFileName";
@@ -367,7 +370,7 @@
             // 
             // colPort
             // 
-            this.colPort.FillWeight = 60F;
+            this.colPort.FillWeight = 50F;
             this.colPort.HeaderText = "Port";
             this.colPort.MinimumWidth = 8;
             this.colPort.Name = "colPort";
@@ -375,7 +378,6 @@
             // 
             // colHost
             // 
-            this.colHost.FillWeight = 120F;
             this.colHost.HeaderText = "Host IP";
             this.colHost.MinimumWidth = 8;
             this.colHost.Name = "colHost";
@@ -383,7 +385,7 @@
             // 
             // colHits
             // 
-            this.colHits.FillWeight = 60F;
+            this.colHits.FillWeight = 50F;
             this.colHits.HeaderText = "Hits";
             this.colHits.MinimumWidth = 8;
             this.colHits.Name = "colHits";
@@ -391,11 +393,19 @@
             // 
             // colUrl
             // 
-            this.colUrl.FillWeight = 250F;
+            this.colUrl.FillWeight = 200F;
             this.colUrl.HeaderText = "URL";
             this.colUrl.MinimumWidth = 8;
             this.colUrl.Name = "colUrl";
             this.colUrl.ReadOnly = true;
+            // 
+            // colSize
+            // 
+            this.colSize.FillWeight = 80F;
+            this.colSize.HeaderText = "Size";
+            this.colSize.MinimumWidth = 8;
+            this.colSize.Name = "colSize";
+            this.colSize.ReadOnly = true;
             // 
             // colPath
             // 
@@ -408,7 +418,7 @@
             // splitContainer
             // 
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer.Location = new System.Drawing.Point(0, 126);
+            this.splitContainer.Location = new System.Drawing.Point(0, 146);
             this.splitContainer.Name = "splitContainer";
             this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -419,8 +429,8 @@
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.groupLog);
-            this.splitContainer.Size = new System.Drawing.Size(1200, 670);
-            this.splitContainer.SplitterDistance = 344;
+            this.splitContainer.Size = new System.Drawing.Size(1200, 650);
+            this.splitContainer.SplitterDistance = 334;
             this.splitContainer.TabIndex = 3;
             // 
             // groupLog
@@ -432,7 +442,7 @@
             this.groupLog.ForeColor = System.Drawing.Color.White;
             this.groupLog.Location = new System.Drawing.Point(0, 0);
             this.groupLog.Name = "groupLog";
-            this.groupLog.Size = new System.Drawing.Size(1200, 322);
+            this.groupLog.Size = new System.Drawing.Size(1200, 312);
             this.groupLog.TabIndex = 0;
             this.groupLog.TabStop = false;
             this.groupLog.Text = "Server Log";
@@ -448,7 +458,7 @@
             this.txtLog.Location = new System.Drawing.Point(3, 27);
             this.txtLog.Name = "txtLog";
             this.txtLog.ReadOnly = true;
-            this.txtLog.Size = new System.Drawing.Size(1194, 292);
+            this.txtLog.Size = new System.Drawing.Size(1194, 282);
             this.txtLog.TabIndex = 0;
             this.txtLog.Text = "";
             // 
@@ -459,7 +469,8 @@
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel,
             this.lblServerCount,
-            this.lblTotalHits});
+            this.lblTotalHits,
+            this.lblTotalSize});
             this.statusStrip.Location = new System.Drawing.Point(0, 796);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1200, 34);
@@ -493,6 +504,16 @@
             this.lblTotalHits.Name = "lblTotalHits";
             this.lblTotalHits.Size = new System.Drawing.Size(105, 29);
             this.lblTotalHits.Text = "Total hits: 0";
+            // 
+            // lblTotalSize
+            // 
+            this.lblTotalSize.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this.lblTotalSize.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.lblTotalSize.ForeColor = System.Drawing.Color.White;
+            this.lblTotalSize.Margin = new System.Windows.Forms.Padding(20, 3, 0, 2);
+            this.lblTotalSize.Name = "lblTotalSize";
+            this.lblTotalSize.Size = new System.Drawing.Size(81, 29);
+            this.lblTotalSize.Text = "Size: 0 B";
             // 
             // Form1
             // 
@@ -549,6 +570,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colHost;
         private System.Windows.Forms.DataGridViewTextBoxColumn colHits;
         private System.Windows.Forms.DataGridViewTextBoxColumn colUrl;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colSize;
         private System.Windows.Forms.DataGridViewTextBoxColumn colPath;
         private System.Windows.Forms.Button btnCopy;
         private System.Windows.Forms.Button btnClearLog;
@@ -556,5 +578,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel lblServerCount;
         private System.Windows.Forms.ToolStripStatusLabel lblTotalHits;
+        private System.Windows.Forms.ToolStripStatusLabel lblTotalSize;
     }
 }
