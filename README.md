@@ -55,7 +55,7 @@ That’s it. No magic rituals required.
 ## 🛠️ Requirements
 
 - 🪟 **Windows**
-- 🧩 **.NET Framework 4.7.2+**
+- 🧩 **.NET Framework 4.7.2+**  ( https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net472-offline-installer )
 - 🛡️ **Run as Administrator**  
   *(Required for some networking features)*
 
