@@ -76,6 +76,23 @@ That’s it. No magic rituals required.
 
 
 ---
+# UPDATE TO VERSION 1.2
+
+## 🧑‍💻 ADDED Web Management UI
+
+- 🖼️ **Built-in Web Interface**  
+  When you open **just the IP address and port** in your browser (e.g. `http://192.168.1.10:8080`), a **clean and user-friendly web interface** is displayed.
+
+- 📂 **File Management**  
+  From the web UI you can:
+  - browse hosted files  
+  - download files with a single click
+ 
+
+## Web Management UI Preview
+<img width="1858" height="1875" alt="Zrzut ekranu 2025-12-27 000405" src="https://github.com/user-attachments/assets/108eb6d4-e1a8-4d92-984c-db27fa078bbe" />
+
+
 
 ## 📜 License
 
