@@ -39,7 +39,7 @@ namespace MiniHttpServer
         private readonly Color successColor = Color.FromArgb(100, 255, 100);
         private readonly Color warningColor = Color.FromArgb(255, 200, 100);
 
-   
+
         private HttpListener server;
         private Thread serverThread;
         private bool serverRunning = false;
@@ -188,7 +188,7 @@ namespace MiniHttpServer
                         int addedCount = 0;
                         foreach (string fileName in ofd.FileNames)
                         {
-                            
+
                             FileInfo fileInfo = new FileInfo(fileName);
                             if (fileInfo.Length > 200L * 1024 * 1024 * 1024) // 200GB
                             {
@@ -245,7 +245,7 @@ namespace MiniHttpServer
                         f.Hits,
                         serverRunning ? f.Url : "Not running",
                         fileSize,
-                        f.Path 
+                        f.Path
                     );
                 }
                 UpdateButtons();
@@ -323,7 +323,7 @@ namespace MiniHttpServer
                     return;
                 }
 
-               
+
                 if (IsPortInUse((int)numPort.Value))
                 {
                     LogMessage($"Port {numPort.Value} is already in use!", LogType.Error);
@@ -335,27 +335,27 @@ namespace MiniHttpServer
                 currentHost = selectedHost.Contains("(") ?
                     selectedHost.Split('(')[0].Trim() : selectedHost;
 
-               
+
                 foreach (var file in files)
                 {
                     file.Port = currentPort;
                     file.Host = currentHost;
                 }
 
-                
+
                 if (StartServer())
                 {
                     RefreshGrid();
                     LogMessage($"Server started on port {currentPort}", LogType.Success);
                     LogMessage($"Access URLs:", LogType.Info);
 
-                   
+
                     foreach (var file in files)
                     {
                         LogMessage($"  - {file.Url}", LogType.Info);
                     }
 
-                    
+
                     if (currentHost == "+" || currentHost == "*")
                     {
                         string localIP = GetLocalIP();
@@ -393,7 +393,7 @@ namespace MiniHttpServer
                 server = new HttpListener();
                 string host = currentHost == "+" ? "*" : currentHost;
 
-                
+
                 if (host == "*")
                 {
                     server.Prefixes.Add($"http://*:{currentPort}/");
@@ -405,14 +405,14 @@ namespace MiniHttpServer
                     LogMessage($"Listening on {host}:{currentPort}", LogType.Info);
                 }
 
-                
+
                 server.TimeoutManager.EntityBody = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.DrainEntityBody = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.RequestQueue = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.IdleConnection = TimeSpan.FromMinutes(60);
                 server.TimeoutManager.HeaderWait = TimeSpan.FromMinutes(60);
 
-                
+
                 if (host == "*" && Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
                     LogMessage("NOTE: On Windows, hosting on '*' may require administrator rights", LogType.Warning);
@@ -430,7 +430,7 @@ namespace MiniHttpServer
             }
             catch (HttpListenerException ex)
             {
-                if (ex.ErrorCode == 5) 
+                if (ex.ErrorCode == 5)
                 {
                     LogMessage($"ACCESS DENIED: Need administrator rights to host on port {currentPort}", LogType.Error);
                     LogMessage("Please run this application as Administrator", LogType.Error);
@@ -621,18 +621,25 @@ namespace MiniHttpServer
                             try
                             {
                                 HttpListenerContext httpContext = (HttpListenerContext)ctx;
-                                string requestedFile = httpContext.Request.Url.Segments[httpContext.Request.Url.Segments.Length - 1];
+                                string requestPath = httpContext.Request.Url.AbsolutePath.TrimStart('/');
 
-                                
                                 string clientIP = httpContext.Request.RemoteEndPoint?.Address?.ToString() ?? "unknown";
+
                                 this.Invoke(new Action(() =>
                                 {
-                                    LogMessage($"Connection from: {clientIP} requesting: {requestedFile}", LogType.Info);
+                                    LogMessage($"Connection from: {clientIP} requesting: {requestPath}", LogType.Info);
                                 }));
 
-                                
+                                // Jeśli pusty request (główna strona) - pokaż listę plików
+                                if (string.IsNullOrEmpty(requestPath) || requestPath == "/")
+                                {
+                                    SendFileList(httpContext, clientIP);
+                                    return;
+                                }
+
+                                // Szukaj pliku
                                 var file = files.Find(f =>
-                                    Path.GetFileName(f.Path).Equals(requestedFile, StringComparison.OrdinalIgnoreCase));
+                                    Path.GetFileName(f.Path).Equals(requestPath, StringComparison.OrdinalIgnoreCase));
 
                                 if (file != null)
                                 {
@@ -640,21 +647,19 @@ namespace MiniHttpServer
 
                                     this.Invoke(new Action(() =>
                                     {
-                                        LogMessage($"Serving: {requestedFile} to {clientIP}", LogType.Success);
+                                        LogMessage($"Serving: {requestPath} to {clientIP}", LogType.Success);
                                         RefreshGrid();
                                     }));
 
-                                    
+                                    // Obsługa pliku
                                     using (FileStream fileStream = File.OpenRead(file.Path))
                                     {
                                         httpContext.Response.ContentType = GetContentType(file.Path);
                                         httpContext.Response.ContentLength64 = fileStream.Length;
 
-                                        
                                         byte[] buffer = new byte[1024 * 1024]; // 1MB buffer
                                         int bytesRead;
 
-                                        
                                         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                                         {
                                             Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
@@ -668,18 +673,15 @@ namespace MiniHttpServer
                                             httpContext.Response.OutputStream.Write(buffer, 0, bytesRead);
                                             totalBytes += bytesRead;
 
-                                           
                                             if (totalBytes % (10 * 1024 * 1024) == 0)
                                             {
                                                 httpContext.Response.OutputStream.Flush();
                                             }
 
-                                            
                                             if (!serverRunning) break;
                                         }
                                         sw.Stop();
 
-                                       
                                         double speedMBps = (totalBytes / (1024.0 * 1024.0)) / (sw.ElapsedMilliseconds / 1000.0);
                                         this.Invoke(new Action(() =>
                                         {
@@ -689,21 +691,8 @@ namespace MiniHttpServer
                                 }
                                 else
                                 {
-                                    
-                                    httpContext.Response.StatusCode = 404;
-                                    string notFound = $"File '{requestedFile}' not found. Available files: ";
-                                    foreach (var f in files)
-                                    {
-                                        notFound += $"\n- {Path.GetFileName(f.Path)}";
-                                    }
-                                    byte[] buffer = System.Text.Encoding.UTF8.GetBytes(notFound);
-                                    httpContext.Response.ContentLength64 = buffer.Length;
-                                    httpContext.Response.OutputStream.Write(buffer, 0, buffer.Length);
-
-                                    this.Invoke(new Action(() =>
-                                    {
-                                        LogMessage($"File not found: {requestedFile} requested by {clientIP}", LogType.Warning);
-                                    }));
+                                    // Plik nie znaleziony
+                                    SendNotFound(httpContext, requestPath);
                                 }
 
                                 httpContext.Response.OutputStream.Close();
@@ -748,6 +737,122 @@ namespace MiniHttpServer
                         RefreshGrid();
                         LogMessage($"Server stopped", LogType.Info);
                     }
+                }));
+            }
+        }
+
+        private void SendFileList(HttpListenerContext context, string clientIP)
+        {
+            try
+            {
+                string html = @"<!DOCTYPE html><html><head><title>Easy File Server</title>
+                <style>
+                body{font-family:Arial,sans-serif;margin:0;padding:20px;background:#121212;color:#e0e0e0;}
+                .container{max-width:1200px;margin:0 auto;}
+                h1{color:#00d4ff;margin-bottom:30px;border-bottom:2px solid #00d4ff;padding-bottom:10px;}
+                .info{background:#1e1e2e;padding:15px;border-radius:8px;margin-bottom:20px;border-left:4px solid #00d4ff;}
+                .info p{margin:5px 0;}
+                .info strong{color:#00d4ff;}
+                table{width:100%;border-collapse:collapse;margin-top:20px;background:#1e1e2e;border-radius:8px;overflow:hidden;}
+                th{background:#252535;color:#00d4ff;padding:15px;text-align:left;}
+                td{padding:12px 15px;border-bottom:1px solid #333;}
+                tr:hover{background:#252540;}
+                a{color:#00d4ff;text-decoration:none;margin:0 10px;padding:5px 10px;border-radius:4px;border:1px solid #00d4ff;}
+                a:hover{background:#00d4ff;color:#121212;}
+                .empty{text-align:center;padding:40px;color:#888;}
+                </style></head>
+                <body><div class='container'>
+                <h1>Easy File Server</h1>
+                <div class='info'>
+                <p><strong>Client IP:</strong> " + clientIP + @"</p>
+                <p><strong>Server Time:</strong> " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + @"</p>
+                <p><strong>Total Files:</strong> " + files.Count + @"</p>
+                </div>";
+
+                if (files.Count == 0)
+                {
+                    html += @"<div class='empty'><p>No files available for download.</p></div>";
+                }
+                else
+                {
+                    html += @"<table><thead><tr>
+                    <th>File Name</th><th>Size</th><th>Downloads</th><th>Actions</th>
+                    </tr></thead><tbody>";
+
+                    foreach (var file in files)
+                    {
+                        string fileName = Path.GetFileName(file.Path);
+                        FileInfo fileInfo = new FileInfo(file.Path);
+                        string fileSize = FormatFileSize(fileInfo.Length);
+
+                        html += @"<tr>
+                        <td>" + fileName + @"</td>
+                        <td>" + fileSize + @"</td>
+                        <td>" + file.Hits + @"</td>
+                        <td>
+                        <a href='/" + fileName + @"' title='Open file'>Open</a>
+                        <a href='/" + fileName + @"' download title='Download file'>Download</a>
+                        </td></tr>";
+                    }
+
+                    html += @"</tbody></table>";
+                }
+
+                html += @"</div></body></html>";
+
+                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(html);
+                context.Response.ContentType = "text/html";
+                context.Response.ContentLength64 = buffer.Length;
+                context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+
+                this.Invoke(new Action(() =>
+                {
+                    LogMessage($"Served file list to {clientIP}", LogType.Info);
+                }));
+            }
+            catch (Exception ex)
+            {
+                this.Invoke(new Action(() =>
+                {
+                    LogMessage($"Error sending file list: {ex.Message}", LogType.Error);
+                }));
+            }
+        }
+
+        private void SendNotFound(HttpListenerContext context, string requestedFile)
+        {
+            try
+            {
+                string html = @"<!DOCTYPE html><html><head><title>404 - Not Found</title>
+                <style>
+                body{font-family:Arial,sans-serif;margin:0;padding:40px;background:#121212;color:#e0e0e0;text-align:center;}
+                h1{color:#ff4444;}
+                a{color:#00d4ff;text-decoration:none;}
+                a:hover{text-decoration:underline;}
+                .container{max-width:600px;margin:0 auto;padding:30px;background:#1e1e2e;border-radius:10px;}
+                </style></head>
+                <body><div class='container'>
+                <h1>404 - File Not Found</h1>
+                <p>File '" + requestedFile + @"' was not found on this server.</p>
+                <p><a href='/'>← Return to file list</a></p>
+                </div></body></html>";
+
+                byte[] buffer = System.Text.Encoding.UTF8.GetBytes(html);
+                context.Response.StatusCode = 404;
+                context.Response.ContentType = "text/html";
+                context.Response.ContentLength64 = buffer.Length;
+                context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+
+                this.Invoke(new Action(() =>
+                {
+                    LogMessage($"File not found: {requestedFile}", LogType.Warning);
+                }));
+            }
+            catch (Exception ex)
+            {
+                this.Invoke(new Action(() =>
+                {
+                    LogMessage($"Error sending 404: {ex.Message}", LogType.Error);
                 }));
             }
         }
@@ -969,7 +1074,7 @@ namespace MiniHttpServer
             {
                 if (!serverRunning)
                 {
-                   
+
                     foreach (var file in files)
                     {
                         file.Port = (int)numPort.Value;
@@ -995,7 +1100,7 @@ namespace MiniHttpServer
                     string hostValue = selected.Contains("(") ?
                         selected.Split('(')[0].Trim() : selected;
 
-                    
+
                     foreach (var file in files)
                     {
                         file.Host = hostValue;
@@ -1030,10 +1135,10 @@ namespace MiniHttpServer
 
         private void lblStatus_Click(object sender, EventArgs e)
         {
-            
+
         }
 
-        
+
         private void lblHostIP_Click(object sender, EventArgs e) { }
         private void toolStripStatusLabel_Click(object sender, EventArgs e) { }
         private void groupLog_Enter(object sender, EventArgs e) { }
