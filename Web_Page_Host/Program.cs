@@ -10,7 +10,7 @@ namespace MiniHttpServer
         [STAThread]
         static void Main()
         {
-            // Sprawdzenie, czy program jest uruchomiony jako administrator
+            // Check if the program is running as administrator
             if (!IsAdministrator())
             {
                 try
@@ -24,7 +24,7 @@ namespace MiniHttpServer
                 }
                 catch
                 {
-                    // kliknięto NIE w UAC → zamknięcie
+                    // clicked NO in UAC → shutdown
                 }
                 return;
             }
